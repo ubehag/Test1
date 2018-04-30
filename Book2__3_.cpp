@@ -37,7 +37,13 @@ using std::vector;
 using std::sort;
 using std::endl;
 
+#include <stdexcept>
+using std::domain_error;
+using std::istream;
+
+
 double median(vector<double> vec) {
+	// call by VALUE: sort() changes content, we do not want to return that changed vector
 	typedef vector<double>::size_type vec_sze; // define this as a local type name
 	vec_sze size = vec.size();
 	if (size == 0)
@@ -47,8 +53,53 @@ double median(vector<double> vec) {
 	return size % 2 == 0 ? (vec[mid] + vec[mid - 1]) / 2 : vec[mid];
 }
 
-int ch4() {
+double grade(double midterm, double final, double homework) {
+	return 0.2*midterm + 0.4*final + 0.4*homework;
+}
+// OVERLOAD of previous 'grade()' func ; 3rd arg distinguishes them
+double grade(double midterm, double final, const vector<double>& hw) { // REFERENCE == "alias"
+	// const ref: will not change vector content -> efficient call for possibly time consuming param (e.g. vector<>, string)
+	if (hw.size() == 0)
+		throw domain_error("Student has done no homework"); // throw here instead of in 'median()' to provide better explanation
+	return grade(midterm, final, median(hw));
+}
 
+// returning (ref) stream allows for use: if (read_hw(cin, homework)) ...
+istream& read_hw(istream& in, vector<double>& hw) {
+	// REF arg -> work directly on the original; INTENDED change
+	if (in) { // might be in error state before arriving here! 
+		hw.clear(); // may be full of previous
+		double x;
+		while (in >> x) // may fail due to eof, or encountering a non-grade --> FAILURE STATE
+			hw.push_back(x);
+		
+		in.clear(); // clear stream error state to make it ready for next student (ignore the reason why above loop stopped)
+	}
+	return in;
+}
+
+int ch4() {
+	cout << "Please enter student's first name: ";
+	string name;
+	cin >> name;
+	cout << "Enter midterm and final exam grades: ";
+	double midterm, finals;
+	cin >> midterm >> finals;
+	cout << "Enter homework grades, "
+		"followed by e-o-f: ";
+	vector<double> homework;
+	read_hw(cin, homework);
+	try {
+		double final_grade = grade(midterm, finals, homework);
+		streamsize prec = cout.precision();
+		cout << "Your final grade is " << setprecision(3) << final_grade << setprecision(prec) << endl;
+		// computation done beforehand, so that e.g. setprecision() is performed correctly back and forth regardless of exception throwing when calculating
+	}
+	catch (domain_error) {
+		cout << endl << "You must enter your grades! Please try again." << endl;
+		return 1;
+	}
+	return 0;
 }
 
 
