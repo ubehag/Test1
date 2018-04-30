@@ -1,7 +1,7 @@
 //////////////////////////////////////
 //* CHAPTER 3 *//* Batches of data *//
 //////////////////////////////////////
-#include "stdafx.h"
+#include "stdafx.h" // needed
 
 
 #include <iomanip>
