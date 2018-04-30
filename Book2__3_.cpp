@@ -42,6 +42,32 @@ using std::domain_error;
 using std::istream;
 
 
+double grade(double midterm, double final, double homework);
+double grade(double midterm, double final, const vector<double>& hw);
+istream& read_hw(istream& in, vector<double>& hw);
+
+struct Student_info {
+	string name;
+	double midterm, finals;
+	vector<double> homework;
+};
+
+// We need a PREDICATE for sort() to sort on what we wish!
+// sort(students.begin(), students.end(), compare);
+bool compare(const Student_info& x, const Student_info& y) {
+	return x.name < y.name; // string class has '<'
+}
+
+double grade(const Student_info& s) {
+	return grade(s.midterm, s.finals, s.homework); // can throw exception - not caught here since we don't know what to do w it - maybe our caller can?
+}
+
+istream& read(istream& is, Student_info& s) { // overloaded
+	is >> s.name >> s.midterm >> s.finals;
+	read_hw(is, s.homework); // does not reset stream.state if it was not OK when arriving there
+	return is;
+}
+
 double median(vector<double> vec) {
 	// call by VALUE: sort() changes content, we do not want to return that changed vector
 	typedef vector<double>::size_type vec_sze; // define this as a local type name
@@ -78,26 +104,29 @@ istream& read_hw(istream& in, vector<double>& hw) {
 	return in;
 }
 
+using std::max;
+
 int ch4() {
-	cout << "Please enter student's first name: ";
-	string name;
-	cin >> name;
-	cout << "Enter midterm and final exam grades: ";
-	double midterm, finals;
-	cin >> midterm >> finals;
-	cout << "Enter homework grades, "
-		"followed by e-o-f: ";
-	vector<double> homework;
-	read_hw(cin, homework);
-	try {
-		double final_grade = grade(midterm, finals, homework);
-		streamsize prec = cout.precision();
-		cout << "Your final grade is " << setprecision(3) << final_grade << setprecision(prec) << endl;
-		// computation done beforehand, so that e.g. setprecision() is performed correctly back and forth regardless of exception throwing when calculating
+	vector<Student_info> students;
+	Student_info record;
+	string::size_type maxlen = 0;
+
+	while (read(cin, record)) {
+		maxlen = max(maxlen, record.name.size()); // Both args must be same size -> maxlen is size_type
+		students.push_back(record);
 	}
-	catch (domain_error) {
-		cout << endl << "You must enter your grades! Please try again." << endl;
-		return 1;
+	sort(students.begin(), students.end(), compare);
+	for (vector<Student_info>::size_type i = 0; i != students.size(); ++i) {
+		cout << students[i].name << string(maxlen - students[i].name.size(), ' '); // temp string, NAMELESS OBJ,  of right number of spaces
+		try {
+			double final_grade = grade(students[i]);
+			streamsize prec = cout.precision();
+			cout << setprecision(3) << final_grade << setprecision(3);
+		}
+		catch (domain_error e) {
+			cout << e.what();
+		}
+		cout << endl;
 	}
 	return 0;
 }
