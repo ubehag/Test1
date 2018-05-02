@@ -48,14 +48,79 @@ void ch4_final() {
 	}
 }
 
-void ch4ex_2() {
+void ch4ex_1() {
 	string::size_type maxlen = 0;
 	Student_info s;
 	max(s.name.size(), maxlen);
 }
 
+void ch4ex_2() {
+	for (int i = 0; i != 101; ++i) {
+		cout << std::setw(3) << i << std::setw(6) << i * i << endl;
+	}
+}
+
+void ch4ex_5() {
+	cout << "Word counting: \n";
+	vector<string> v;
+	string w;
+	int noof = 0;
+	while (cin >> w && w != "q") {
+		v.push_back(w);
+		++noof;
+	}
+	cout << endl << "Number of words: " << noof << endl;
+	sort(v.begin(), v.end());
+	int count = 0;
+	int i;
+	for (i = 0; i != v.size(); ++i) {
+
+		if (i != 0 && v[i] != v[i - 1])
+			cout << count << endl;
+
+		if (i == 0 || v[i] != v[i - 1])
+			cout << v[i] << " ";
+
+		if (i == 0 || v[i] == v[i - 1])
+			++count;
+		else count = 1;
+	}
+	if (i != 0)
+		cout << count << endl;
+}
+
+void ch4ex_6() {
+	cout << "Enter studname  mid final hw_grades - quit by 'q'\n";
+	vector<Student2> students;
+	Student2 s;
+	bool q = false;
+	while (!q) {
+		read(cin, s, q);
+		if (!q)
+			students.push_back(s);
+	}
+	cout << "FINAL SCORES:\n";
+	for (vector<Student2>::size_type i = 0; i != students.size(); ++i)
+		cout << students[i].name << "  " << students[i].finalgrade << endl;
+
+}
+
+void ch4ex_7() {
+	cout << "Enter doubles, I'll give you the average!\n";
+	vector<double> v;
+	double d;
+	while (cin >> d) {
+		v.push_back(d);
+	}
+	double sum = 0;
+	for (vector<double>::size_type i = 0; i != v.size(); ++i) {
+		sum += v[i];
+	}
+	cout << "Average is " << sum / v.size() << endl;
+}
+
 int main() {
 	//ch4_final();
-	ch4ex_2();
+	ch4ex_7();
 	return 0;
 }
