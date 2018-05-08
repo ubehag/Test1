@@ -22,3 +22,7 @@ double grade(double midterm, double finals, const vector<double>& homework) {
 double grade(const Student_info& s) {
 	return grade(s.midterm, s.finals, s.homework);
 }
+
+double grade(const Student2& s) {
+	return s.finalgrade;
+}
